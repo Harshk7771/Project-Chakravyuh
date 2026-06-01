@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chakravyuh — Real-Time Threat Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --saffron: #FF6B00;
+    --gold: #FFB300;
+    --deep: #060E1A;
+    --panel: #0A1628;
+    --mid: #0D1F3C;
+    --cyan: #00D4FF;
+    --green: #1AFF3A;
+    --red: #FF2D4A;
+    --white: #F0F4FF;
+    --muted: #8899BB;
+    --border: rgba(255,107,0,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--deep); color: var(--white); font-family: 'Exo 2', sans-serif; overflow: hidden; }
+
+  /* ── OUTER WRAPPER ── */
+  .threat-section {
+    width: 100%; height: 100vh;
+    display: flex; flex-direction: column;
+    background: var(--deep);
+    padding: 28px 40px;
+    gap: 20px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header { flex-shrink: 0; }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 3px;
+    color: var(--saffron); text-transform: uppercase;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before { content: '//'; color: var(--muted); }
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.2rem; font-weight: 700; letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .section-title span { color: var(--saffron); }
+  .section-desc { color: var(--muted); font-size: 0.88rem; font-weight: 300; line-height: 1.7; }
+
+  /* ── MAP CONTAINER ── */
+  .map-wrapper {
+    flex: 1; display: flex; flex-direction: column;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 60px rgba(255,107,0,0.08), inset 0 0 40px rgba(0,0,0,0.4);
+  }
+
+  /* ── MAP TITLEBAR ── */
+  .map-titlebar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(6,14,26,0.95);
+    border-bottom: 1px solid var(--border);
+    z-index: 500; position: relative;
+  }
+  .map-title-left { display: flex; align-items: center; gap: 20px; }
+  .map-title-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 2px; color: var(--saffron);
+  }
+  .live-indicator {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; color: var(--green);
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    animation: livePulse 1.4s ease-in-out infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--green); }
+    50% { opacity: 0.4; box-shadow: none; }
+  }
+  .map-title-right {
+    display: flex; align-items: center; gap: 28px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
+  }
+  .stat-pill { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+  .stat-pill-label { color: var(--muted); letter-spacing: 1px; font-size: 0.58rem; }
+  .stat-pill-value { font-size: 0.9rem; letter-spacing: 1px; }
+  .stat-pill-value.red { color: var(--red); text-shadow: 0 0 8px rgba(255,45,74,0.5); }
+  .stat-pill-value.orange { color: var(--saffron); }
+  .stat-pill-value.cyan { color: var(--cyan); }
+
+  /* ── MAP ── */
+  #map {
+    flex: 1; width: 100%;
+    background: #060E1A;
+    position: relative;
+  }
+
+  /* Override Leaflet defaults */
+  .leaflet-container { background: #060E1A !important; }
+  .leaflet-control-zoom { display: none; }
+  .leaflet-control-attribution { display: none !important; }
+
+  /* ── ATTACK CANVAS ── */
+  #attackCanvas {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 400;
+    width: 100%; height: 100%;
+  }
+
+  /* ── BOTTOM STATUS BAR ── */
+  .map-statusbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 20px;
+    background: rgba(6,14,26,0.95);
+    border-top: 1px solid var(--border);
+    z-index: 500; position: relative;
+  }
+  .legend { display: flex; gap: 24px; align-items: center; }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem; color: var(--muted); letter-spacing: 1px;
+  }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-line { width: 18px; height: 1px; background: var(--cyan); flex-shrink: 0; }
+  .status-right {
+    display: flex; gap: 20px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.62rem;
+  }
+  .status-item { display: flex; gap: 6px; align-items: center; }
+  .status-label { color: var(--muted); }
+  .status-val { color: var(--white); }
+
+  /* ── CUSTOM MARKERS ── */
+  .attack-marker {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--red);
+    border: 2px solid rgba(255,45,74,0.6);
+    box-shadow: 0 0 10px rgba(255,45,74,0.8);
+    animation: attackPulse 1.8s ease-in-out infinite;
+    cursor: pointer;
+  }
+  .target-marker {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(255,107,0,0.3);
+    border: 2px solid var(--saffron);
+    box-shadow: 0 0 16px rgba(255,107,0,0.8);
+    animation: targetPulse 2s ease-in-out infinite;
+    position: relative;
+  }
+  .target-marker::after {
+    content: '';
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,107,0,0.4);
+    animation: targetRing 2s ease-out infinite;
+  }
+  @keyframes attackPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(255,45,74,0.8); }
+    50% { transform: scale(1.3); box-shadow: 0 0 18px rgba(255,45,74,0.4); }
+  }
+  @keyframes targetPulse {
+    0%, 100% { box-shadow: 0 0 14px rgba(255,107,0,0.8); }
+    50% { box-shadow: 0 0 30px rgba(255,107,0,0.3); }
+  }
+  @keyframes targetRing {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* ── ATTACK POPUP ── */
+  .attack-popup {
+    background: rgba(6,14,26,0.97) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 2px !important;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--white) !important;
+    min-width: 200px;
+    box-shadow: 0 0 20px rgba(255,107,0,0.2) !important;
+  }
+  .attack-popup .leaflet-popup-content-wrapper { background: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+  .attack-popup .leaflet-popup-content { margin: 0 !important; }
+  .attack-popup .leaflet-popup-tip { background: rgba(255,107,0,0.3) !important; }
+  .popup-inner { padding: 12px 14px; }
+  .popup-title { font-size: 0.65rem; letter-spacing: 2px; color: var(--saffron); margin-bottom: 8px; text-transform: uppercase; }
+  .popup-row { display: flex; justify-content: space-between; gap: 16px; font-size: 0.62rem; color: var(--muted); padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .popup-row span:last-child { color: var(--white); }
+
+  /* ── SIDE ATTACK LOG ── */
+  .attack-log {
+    position: absolute; right: 12px; top: 12px;
+    width: 240px; z-index: 450;
+    background: rgba(6,14,26,0.92);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    max-height: 280px; overflow: hidden;
+  }
+  .attack-log-header {
+    padding: 8px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 2px; color: var(--saffron);
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between;
+  }
+  .attack-log-body { max-height: 248px; overflow-y: auto; }
+  .attack-log-body::-webkit-scrollbar { width: 3px; }
+  .attack-log-body::-webkit-scrollbar-track { background: transparent; }
+  .attack-log-body::-webkit-scrollbar-thumb { background: rgba(255,107,0,0.3); }
+  .log-entry {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 7px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-family: 'Share Tech Mono', monospace; font-size: 0.58rem;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
+  .log-sev { flex-shrink: 0; margin-top: 1px; }
+  .log-dot { width: 6px; height: 6px; border-radius: 50%; display: block; }
+  .log-text { color: var(--muted); line-height: 1.5; }
+  .log-text strong { color: var(--white); display: block; }
+  .log-time { color: rgba(136,153,187,0.4); font-size: 0.5rem; white-space: nowrap; }
+
+  /* ── CORNER DECORATIONS ── */
+  .corner-tl, .corner-tr, .corner-bl, .corner-br {
+    position: absolute; width: 12px; height: 12px; z-index: 450; pointer-events: none;
+  }
+  .corner-tl { top: 0; left: 0; border-top: 2px solid var(--saffron); border-left: 2px solid var(--saffron); }
+  .corner-tr { top: 0; right: 0; border-top: 2px solid var(--saffron); border-right: 2px solid var(--saffron); }
+  .corner-bl { bottom: 0; left: 0; border-bottom: 2px solid var(--saffron); border-left: 2px solid var(--saffron); }
+  .corner-br { bottom: 0; right: 0; border-bottom: 2px solid var(--saffron); border-right: 2px solid var(--saffron); }
+
+  /* ── COUNTER TICKER ── */
+  .attack-counter {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; color: var(--red);
+    animation: counterFlick 0.15s ease;
+  }
+  @keyframes counterFlick { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+</style>
+</head>
+<body>
+
+<div class="threat-section">
+  <!-- Header -->
+  <div class="section-header">
+    <div class="section-label">Global Intelligence</div>
+    <h2 class="section-title">Real-Time <span>Threat Map</span></h2>
+    <p class="section-desc">Live visualization of attack origins, targets, and threat corridors across the globe — powered by continuous threat intelligence feeds from VirusTotal, Kaspersky TI, and CERT-In.</p>
+  </div>
+
+  <!-- Map Container -->
+  <div class="map-wrapper">
+    <!-- Titlebar -->
+    <div class="map-titlebar">
+      <div class="map-title-left">
+        <div class="map-title-text">// GLOBAL THREAT ACTIVITY MONITOR</div>
+        <div class="live-indicator"><div class="live-dot"></div>LIVE FEED</div>
+      </div>
+      <div class="map-title-right">
+        <div class="stat-pill">
+          <span class="stat-pill-label">ATTACKS/MIN</span>
+          <span class="stat-pill-value red" id="atkCounter">847</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">ACTIVE THREATS</span>
+          <span class="stat-pill-value orange" id="threatCount">23</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">INTEL SOURCES</span>
+          <span class="stat-pill-value cyan">12 ACTIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaflet Map -->
+    <div style="position:relative;flex:1;display:flex;flex-direction:column;">
+      <div id="map"></div>
+      <canvas id="attackCanvas"></canvas>
+
+      <!-- Corner decorations -->
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+
+      <!-- Attack Log -->
+      <div class="attack-log">
+        <div class="attack-log-header">
+          <span>LIVE ATTACK LOG</span>
+          <span id="logCount" style="color:var(--red)">0</span>
+        </div>
+        <div class="attack-log-body" id="logBody"></div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="map-statusbar">
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--red);box-shadow:0 0 6px var(--red)"></div>ATTACK ORIGIN</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--saffron);box-shadow:0 0 6px var(--saffron)"></div>PROTECTED ZONE (IN)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>INTEL NODE</div>
+        <div class="legend-item"><div class="legend-line"></div>INTEL EXCHANGE</div>
+      </div>
+      <div class="status-right">
+        <div class="status-item"><span class="status-label">TOP ORIGIN:</span><span class="status-val" style="color:var(--red)">CN · RU · KP · IR</span></div>
+        <div class="status-item"><span class="status-label">MAP ZOOM:</span><span class="status-val" id="zoomLevel">3</span></div>
+        <div class="status-item"><span class="status-label">UTC:</span><span class="status-val" id="utcClock">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── INIT MAP ──
+const map = L.map('map', {
+  center: [20, 10],
+  zoom: 3,
+  zoomControl: false,
+  attributionControl: false,
+  minZoom: 2,
+  maxZoom: 8,
+  worldCopyJump: false,
+});
+
+// Dark Carto tile layer
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+// City labels only (subtle)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+  subdomains: 'abcd',
+  maxZoom: 19,
+  opacity: 0.4
+}).addTo(map);
+
+// ── CANVAS OVERLAY ──
+const canvas = document.getElementById('attackCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const mapDiv = document.getElementById('map');
+  canvas.width = mapDiv.offsetWidth;
+  canvas.height = mapDiv.offsetHeight;
+  canvas.style.width = mapDiv.offsetWidth + 'px';
+  canvas.style.height = mapDiv.offsetHeight + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); map.invalidateSize(); });
+map.on('resize', resizeCanvas);
+
+// ── ATTACK DATA ──
+const INDIA_TARGET = { lat: 20.5937, lng: 78.9629, name: 'India', label: 'IN CRITICAL INFRA' };
+
+const ATTACK_SOURCES = [
+  { lat: 39.9042, lng: 116.4074, country: 'CN', city: 'Beijing', type: 'APT', sev: 'CRITICAL', color: '#FF2D4A' },
+  { lat: 55.7558, lng: 37.6173, country: 'RU', city: 'Moscow', type: 'Ransomware', sev: 'CRITICAL', color: '#FF2D4A' },
+  { lat: 39.0392, lng: 125.7625, country: 'KP', city: 'Pyongyang', type: 'Lazarus APT', sev: 'CRITICAL', color: '#FF2D4A' },
+  { lat: 35.6892, lng: 51.3890, country: 'IR', city: 'Tehran', type: 'DDoS', sev: 'HIGH', color: '#FF6B00' },
+  { lat: 37.9838, lng: 23.7275, country: 'GR', city: 'Athens', type: 'Botnet', sev: 'HIGH', color: '#FF6B00' },
+  { lat: 51.5074, lng: -0.1278, country: 'GB', city: 'London', type: 'Phishing', sev: 'MEDIUM', color: '#FFB300' },
+  { lat: 40.7128, lng: -74.0060, country: 'US', city: 'New York', type: 'Scan', sev: 'MEDIUM', color: '#FFB300' },
+  { lat: -23.5505, lng: -46.6333, country: 'BR', city: 'São Paulo', type: 'Trojan', sev: 'HIGH', color: '#FF6B00' },
+  { lat: 6.5244, lng: 3.3792, country: 'NG', city: 'Lagos', type: 'Fraud', sev: 'MEDIUM', color: '#FFB300' },
+  { lat: 1.3521, lng: 103.8198, country: 'SG', city: 'Singapore', type: 'C2 Relay', sev: 'HIGH', color: '#FF6B00' },
+  { lat: 25.2048, lng: 55.2708, country: 'AE', city: 'Dubai', type: 'Spyware', sev: 'HIGH', color: '#FF6B00' },
+  { lat: 48.8566, lng: 2.3522, country: 'FR', city: 'Paris', type: 'Exploit', sev: 'MEDIUM', color: '#FFB300' },
+];
+
+const INTEL_NODES = [
+  { lat: 37.7749, lng: -122.4194, label: 'VirusTotal HQ', color: '#00D4FF' },
+  { lat: 55.7558, lng: 37.6173, label: 'Kaspersky TI', color: '#00D4FF' },
+  { lat: 28.6139, lng: 77.2090, label: 'CERT-In Delhi', color: '#1AFF3A' },
+  { lat: 13.0827, lng: 80.2707, label: 'NCIIPC', color: '#1AFF3A' },
+];
+
+// ── CUSTOM MARKER ICONS ──
+function makeAttackIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:11px;height:11px;border-radius:50%;background:${color};border:2px solid ${color}66;box-shadow:0 0 10px ${color}99;animation:attackPulse 1.8s ease-in-out infinite;"></div>`,
+    iconSize: [11, 11],
+    iconAnchor: [5, 5],
+  });
+}
+
+const targetIcon = L.divIcon({
+  className: '',
+  html: `<div style="width:18px;height:18px;border-radius:50%;background:rgba(255,107,0,0.25);border:2.5px solid #FF6B00;box-shadow:0 0 20px rgba(255,107,0,0.9);position:relative;">
+    <div style="position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(255,107,0,0.4);animation:targetRing 2s ease-out infinite;"></div>
+    <div style="position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(255,107,0,0.15);animation:targetRing 2s ease-out infinite 0.5s;"></div>
+  </div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
+
+const intelIcon = (color) => L.divIcon({
+  className: '',
+  html: `<div style="width:8px;height:8px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color};opacity:0.85;"></div>`,
+  iconSize: [8, 8],
+  iconAnchor: [4, 4],
+});
+
+// Add India target marker
+const indiaMarker = L.marker([INDIA_TARGET.lat, INDIA_TARGET.lng], { icon: targetIcon }).addTo(map);
+indiaMarker.bindPopup(`
+  <div class="popup-inner">
+    <div class="popup-title">⊕ PROTECTED ZONE</div>
+    <div class="popup-row"><span>ENTITY</span><span>India Critical Infrastructure</span></div>
+    <div class="popup-row"><span>STATUS</span><span style="color:#1AFF3A">CHAKRAVYUH ACTIVE</span></div>
+    <div class="popup-row"><span>SHIELDS</span><span style="color:#FF6B00">6 LAYERS ENGAGED</span></div>
+  </div>`, { className: 'attack-popup' });
+
+// Add intel nodes
+INTEL_NODES.forEach(node => {
+  L.marker([node.lat, node.lng], { icon: intelIcon(node.color) })
+    .addTo(map)
+    .bindPopup(`<div class="popup-inner"><div class="popup-title">${node.label}</div><div class="popup-row"><span>STATUS</span><span style="color:#1AFF3A">ONLINE</span></div></div>`, { className: 'attack-popup' });
+});
+
+// Add attack source markers
+ATTACK_SOURCES.forEach(src => {
+  const marker = L.marker([src.lat, src.lng], { icon: makeAttackIcon(src.color) }).addTo(map);
+  marker.bindPopup(`
+    <div class="popup-inner">
+      <div class="popup-title" style="color:${src.color}">⚠ ATTACK ORIGIN</div>
+      <div class="popup-row"><span>COUNTRY</span><span>${src.country} · ${src.city}</span></div>
+      <div class="popup-row"><span>TYPE</span><span>${src.type}</span></div>
+      <div class="popup-row"><span>SEVERITY</span><span style="color:${src.color}">${src.sev}</span></div>
+    </div>`, { className: 'attack-popup' });
+});
+
+// ── ATTACK ARC ANIMATION ──
+let arcs = [];
+let logEntries = [];
+let totalAttacks = 0;
+
+function latLngToPoint(lat, lng) {
+  const pt = map.latLngToContainerPoint([lat, lng]);
+  return { x: pt.x, y: pt.y };
+}
+
+function createArc(source) {
+  const src = latLngToPoint(source.lat, source.lng);
+  const tgt = latLngToPoint(INDIA_TARGET.lat, INDIA_TARGET.lng);
+  const midX = (src.x + tgt.x) / 2;
+  const midY = Math.min(src.y, tgt.y) - Math.abs(tgt.x - src.x) * 0.3;
+  return {
+    sx: src.x, sy: src.y,
+    tx: tgt.x, ty: tgt.y,
+    cx: midX, cy: midY,
+    progress: 0,
+    speed: 0.006 + Math.random() * 0.006,
+    color: source.color,
+    source,
+    done: false,
+    trail: [],
+    trailLen: 12,
+  };
+}
+
+function drawArcs() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw static intel lines
+  INTEL_NODES.forEach(node => {
+    const n = latLngToPoint(node.lat, node.lng);
+    const t = latLngToPoint(INDIA_TARGET.lat, INDIA_TARGET.lng);
+    ctx.beginPath();
+    ctx.setLineDash([4, 6]);
+    ctx.strokeStyle = node.color + '40';
+    ctx.lineWidth = 0.8;
+    ctx.moveTo(n.x, n.y);
+    ctx.lineTo(t.x, t.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Draw attack arcs
+  arcs.forEach(arc => {
+    if (arc.done) return;
+
+    arc.progress = Math.min(arc.progress + arc.speed, 1);
+
+    // Bezier point at progress t
+    function bezier(t) {
+      const x = (1 - t) * (1 - t) * arc.sx + 2 * (1 - t) * t * arc.cx + t * t * arc.tx;
+      const y = (1 - t) * (1 - t) * arc.sy + 2 * (1 - t) * t * arc.cy + t * t * arc.ty;
+      return { x, y };
+    }
+
+    // Build trail
+    const head = bezier(arc.progress);
+    arc.trail.push({ x: head.x, y: head.y });
+    if (arc.trail.length > arc.trailLen) arc.trail.shift();
+
+    // Draw trail
+    if (arc.trail.length > 1) {
+      for (let i = 1; i < arc.trail.length; i++) {
+        const a = i / arc.trail.length;
+        ctx.beginPath();
+        ctx.strokeStyle = arc.color + Math.floor(a * 180).toString(16).padStart(2, '0');
+        ctx.lineWidth = 1.5 * a;
+        ctx.moveTo(arc.trail[i - 1].x, arc.trail[i - 1].y);
+        ctx.lineTo(arc.trail[i].x, arc.trail[i].y);
+        ctx.stroke();
+      }
+    }
+
+    // Head dot
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = arc.color;
+    ctx.shadowColor = arc.color;
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Ghost path (faint full arc)
+    ctx.beginPath();
+    ctx.moveTo(arc.sx, arc.sy);
+    ctx.quadraticCurveTo(arc.cx, arc.cy, arc.tx, arc.ty);
+    ctx.strokeStyle = arc.color + '12';
+    ctx.lineWidth = 0.6;
+    ctx.setLineDash([3, 5]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (arc.progress >= 1) {
+      arc.done = true;
+      // Impact flash at India
+      flashImpact(arc.tx, arc.ty, arc.color);
+    }
+  });
+
+  // Remove done
+  arcs = arcs.filter(a => !a.done || a.progress < 1.05);
+
+  requestAnimationFrame(drawArcs);
+}
+
+function flashImpact(x, y, color) {
+  let r = 5, alpha = 1;
+  function draw() {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    r += 3; alpha -= 0.08;
+    if (alpha > 0) requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── SPAWN ATTACKS ──
+function spawnAttack() {
+  const src = ATTACK_SOURCES[Math.floor(Math.random() * ATTACK_SOURCES.length)];
+  arcs.push(createArc(src));
+  totalAttacks++;
+  addLogEntry(src);
+  // Update counters
+  document.getElementById('atkCounter').textContent = (780 + Math.floor(Math.random() * 120)).toString();
+  document.getElementById('threatCount').textContent = (18 + Math.floor(Math.random() * 10)).toString();
+  document.getElementById('logCount').textContent = logEntries.length;
+}
+
+// ── LOG ENTRIES ──
+function addLogEntry(src) {
+  const now = new Date();
+  const time = now.toISOString().slice(11, 19);
+  const colors = { CRITICAL: '#FF2D4A', HIGH: '#FF6B00', MEDIUM: '#FFB300' };
+  const entry = { src, time, color: colors[src.sev] };
+  logEntries.unshift(entry);
+  if (logEntries.length > 30) logEntries.pop();
+  renderLog();
+}
+
+function renderLog() {
+  const body = document.getElementById('logBody');
+  body.innerHTML = logEntries.slice(0, 15).map(e => `
+    <div class="log-entry">
+      <div class="log-sev"><div class="log-dot" style="background:${e.color};box-shadow:0 0 5px ${e.color}"></div></div>
+      <div class="log-text">
+        <strong>${e.src.city}, ${e.src.country}</strong>
+        ${e.src.type} → India
+      </div>
+      <div class="log-time">${e.time}</div>
+    </div>`).join('');
+  document.getElementById('logCount').textContent = logEntries.length;
+}
+
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  document.getElementById('utcClock').textContent = now.toUTCString().slice(17, 25) + ' UTC';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── ZOOM DISPLAY ──
+map.on('zoomend', () => {
+  document.getElementById('zoomLevel').textContent = map.getZoom();
+});
+
+// ── REDRAW ON MAP MOVE ──
+map.on('move', () => {
+  // Arcs will be redrawn each frame using current map projection
+});
+
+// ── START ──
+drawArcs();
+
+// Stagger initial attacks
+ATTACK_SOURCES.slice(0, 5).forEach((_, i) => {
+  setTimeout(() => spawnAttack(), i * 600);
+});
+
+// Continuous spawn
+function scheduleSpawn() {
+  const delay = 1000 + Math.random() * 2500;
+  setTimeout(() => { spawnAttack(); scheduleSpawn(); }, delay);
+}
+setTimeout(scheduleSpawn, 3500);
+
+// Resize canvas when map pans/zooms
+map.on('movestart zoomstart', resizeCanvas);
+map.on('moveend zoomend', resizeCanvas);
+</script>
+
+<style>
+  /* inject keyframes into document for div markers */
+  @keyframes attackPulse {
+    0%,100%{transform:scale(1);opacity:1;}
+    50%{transform:scale(1.4);opacity:0.7;}
+  }
+  @keyframes targetRing {
+    0%{transform:scale(1);opacity:0.8;}
+    100%{transform:scale(2.8);opacity:0;}
+  }
+</style>
+</body>
+</html>

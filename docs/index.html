@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chakravyuh Docs — SOC Platform Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --saffron:#FF6B00;--gold:#FFB300;--deep:#060E1A;--panel:#0D1F3C;
+  --cyan:#00D4FF;--green:#1AFF3A;--red:#FF2D4A;--white:#F0F4FF;
+  --muted:#8899BB;--border:rgba(255,107,0,0.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--deep);color:var(--white);font-family:'Exo 2',sans-serif;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:rgba(10,22,40,0.98);
+  border-right:1px solid var(--border);
+  height:100vh;position:sticky;top:0;
+  overflow-y:auto;padding:0 0 40px;
+  display:flex;flex-direction:column;
+}
+.sidebar-logo{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border);
+  font-family:'Rajdhani',sans-serif;
+  font-size:1.1rem;font-weight:700;
+  letter-spacing:2px;color:var(--saffron);
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-logo span{font-size:0.65rem;color:var(--muted);display:block;letter-spacing:1px;font-weight:400;}
+.sidebar-version{
+  padding:8px 20px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.6rem;color:var(--green);
+  background:rgba(26,255,58,0.06);
+  border-bottom:1px solid var(--border);
+  letter-spacing:1px;
+}
+.nav-group{margin-top:16px;}
+.nav-group-title{
+  padding:6px 20px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.6rem;letter-spacing:2px;
+  color:var(--muted);text-transform:uppercase;
+  margin-bottom:2px;
+}
+.nav-item{
+  display:block;padding:8px 20px 8px 28px;
+  color:var(--muted);text-decoration:none;
+  font-size:0.82rem;transition:all 0.2s;
+  border-left:2px solid transparent;
+  cursor:pointer;
+}
+.nav-item:hover{color:var(--white);border-left-color:rgba(255,107,0,0.4);}
+.nav-item.active{color:var(--saffron);border-left-color:var(--saffron);background:rgba(255,107,0,0.05);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;max-height:100vh;}
+.doc-header{
+  padding:28px 48px 24px;
+  border-bottom:1px solid var(--border);
+  background:rgba(6,14,26,0.7);
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.breadcrumb{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.7rem;color:var(--muted);
+  letter-spacing:1px;
+}
+.breadcrumb span{color:var(--saffron);}
+.doc-search{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  padding:6px 14px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.72rem;color:var(--muted);
+  min-width:200px;
+}
+.doc-search input{background:none;border:none;outline:none;color:var(--white);font-family:'Share Tech Mono',monospace;font-size:0.72rem;width:100%;}
+.doc-search input::placeholder{color:var(--muted);}
+
+/* CONTENT AREA */
+.doc-content{padding:48px;max-width:860px;}
+.doc-content section{display:none;}
+.doc-content section.active{display:block;}
+
+/* Typography */
+.doc-h1{font-family:'Rajdhani',sans-serif;font-size:2.4rem;font-weight:700;letter-spacing:2px;margin-bottom:8px;}
+.doc-h1 span{color:var(--saffron);}
+.doc-h2{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:600;letter-spacing:1px;color:var(--white);margin:40px 0 12px;border-left:3px solid var(--saffron);padding-left:14px;}
+.doc-h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:600;color:var(--cyan);margin:28px 0 10px;}
+.doc-p{color:var(--muted);line-height:1.85;font-size:0.9rem;font-weight:300;margin-bottom:16px;}
+.doc-lead{font-size:1rem;color:rgba(240,244,255,0.7);line-height:1.8;margin-bottom:32px;border-left:2px solid rgba(255,107,0,0.3);padding-left:16px;}
+
+/* Callout boxes */
+.callout{
+  padding:16px 20px;border-radius:2px;margin:24px 0;
+  font-size:0.85rem;line-height:1.7;
+}
+.callout-info{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.25);color:rgba(240,244,255,0.8);}
+.callout-warn{background:rgba(255,179,0,0.07);border:1px solid rgba(255,179,0,0.3);color:rgba(240,244,255,0.8);}
+.callout-danger{background:rgba(255,45,74,0.08);border:1px solid rgba(255,45,74,0.3);color:rgba(240,244,255,0.8);}
+.callout-title{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.callout-info .callout-title{color:var(--cyan);}
+.callout-warn .callout-title{color:var(--gold);}
+.callout-danger .callout-title{color:var(--red);}
+
+/* Code blocks */
+.code-block{
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(255,107,0,0.15);
+  border-left:3px solid var(--saffron);
+  padding:20px;margin:20px 0;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.75rem;line-height:1.9;
+  color:#B0C4E8;overflow-x:auto;
+  position:relative;
+}
+.code-block .comment{color:rgba(136,153,187,0.5);}
+.code-block .keyword{color:var(--saffron);}
+.code-block .string{color:var(--green);}
+.code-block .cmd{color:var(--cyan);}
+.code-block-title{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.62rem;letter-spacing:1.5px;
+  color:var(--muted);margin-bottom:12px;
+  text-transform:uppercase;
+}
+
+/* Tables */
+.doc-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.82rem;}
+.doc-table th{
+  text-align:left;padding:10px 16px;
+  background:rgba(255,107,0,0.08);
+  color:var(--saffron);font-weight:600;
+  border-bottom:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:1px;
+}
+.doc-table td{
+  padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);
+  color:var(--muted);vertical-align:top;
+}
+.doc-table tr:hover td{background:rgba(255,107,0,0.03);}
+.badge{padding:2px 8px;font-family:'Share Tech Mono',monospace;font-size:0.58rem;border-radius:1px;}
+.badge-orange{background:rgba(255,107,0,0.2);color:var(--saffron);border:1px solid rgba(255,107,0,0.3);}
+.badge-cyan{background:rgba(0,212,255,0.15);color:var(--cyan);border:1px solid rgba(0,212,255,0.2);}
+.badge-green{background:rgba(26,255,58,0.1);color:var(--green);border:1px solid rgba(26,255,58,0.2);}
+
+/* Feature list */
+.feat-list{list-style:none;margin:16px 0;}
+.feat-list li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;color:var(--muted);display:flex;gap:10px;}
+.feat-list li::before{content:'→';color:var(--saffron);flex-shrink:0;}
+
+/* Architecture diagram */
+.arch-diagram{
+  border:1px solid var(--border);
+  padding:24px;margin:24px 0;
+  background:rgba(10,22,40,0.6);
+}
+.arch-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;margin:6px 0;flex-wrap:wrap;
+}
+.arch-box{
+  padding:8px 16px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.65rem;letter-spacing:1px;
+  border:1px solid;text-align:center;min-width:120px;
+}
+.arch-box.layer1{border-color:rgba(255,45,74,0.4);color:var(--red);background:rgba(255,45,74,0.06);}
+.arch-box.layer2{border-color:rgba(255,107,0,0.4);color:var(--saffron);background:rgba(255,107,0,0.06);}
+.arch-box.layer3{border-color:rgba(255,179,0,0.4);color:var(--gold);background:rgba(255,179,0,0.06);}
+.arch-box.layer4{border-color:rgba(0,212,255,0.4);color:var(--cyan);background:rgba(0,212,255,0.06);}
+.arch-box.layer5{border-color:rgba(26,255,58,0.4);color:var(--green);background:rgba(26,255,58,0.06);}
+.arch-arrow{color:var(--muted);font-size:1.2rem;}
+
+/* Divider */
+.doc-divider{border:none;border-top:1px solid var(--border);margin:40px 0;}
+
+/* Page nav */
+.page-nav{
+  display:flex;justify-content:space-between;margin-top:60px;
+  padding-top:24px;border-top:1px solid var(--border);
+}
+.page-nav a{
+  font-family:'Share Tech Mono',monospace;font-size:0.75rem;
+  color:var(--muted);text-decoration:none;
+  padding:10px 16px;border:1px solid var(--border);
+  transition:all 0.2s;
+}
+.page-nav a:hover{color:var(--saffron);border-color:rgba(255,107,0,0.4);}
+.page-nav .next{text-align:right;}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .doc-content{padding:24px;}
+  .doc-header{padding:16px 24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div>⊕</div>
+    <div>CHAKRAVYUH<span>Documentation v1.0</span></div>
+  </div>
+  <div class="sidebar-version">● STABLE RELEASE · BUILD 2024.1</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Getting Started</div>
+    <a class="nav-item active" onclick="show('overview')">Overview</a>
+    <a class="nav-item" onclick="show('install')">Installation</a>
+    <a class="nav-item" onclick="show('quickstart')">Quick Start</a>
+    <a class="nav-item" onclick="show('architecture')">Architecture</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Core Modules</div>
+    <a class="nav-item" onclick="show('siem')">SIEM Engine</a>
+    <a class="nav-item" onclick="show('edr')">EDR Platform</a>
+    <a class="nav-item" onclick="show('forensics')">Digital Forensics</a>
+    <a class="nav-item" onclick="show('network')">Network Analysis</a>
+    <a class="nav-item" onclick="show('soar')">SOAR · n8n</a>
+    <a class="nav-item" onclick="show('threatintel')">Threat Intelligence</a>
+    <a class="nav-item" onclick="show('spiderfoot')">SpiderFoot OSINT</a>
+    <a class="nav-item" onclick="show('greynoise')">GreyNoise</a>
+    <a class="nav-item" onclick="show('malware')">Malware Analysis</a>
+    <a class="nav-item" onclick="show('reporting')">Report Generator</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Configuration</div>
+    <a class="nav-item" onclick="show('config')">System Config</a>
+    <a class="nav-item" onclick="show('integrations')">Integrations</a>
+    <a class="nav-item" onclick="show('playbooks')">Playbooks</a>
+    <a class="nav-item" onclick="show('users')">User Roles</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Deployment</div>
+    <a class="nav-item" onclick="show('docker')">Docker Compose</a>
+    <a class="nav-item" onclick="show('airgap')">Air-Gapped Setup</a>
+    <a class="nav-item" onclick="show('licensing')">Licensing</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Reference</div>
+    <a class="nav-item" onclick="show('api')">API Reference</a>
+    <a class="nav-item" onclick="show('changelog')">Changelog</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="doc-header">
+    <div class="breadcrumb">CHAKRAVYUH / <span>docs</span></div>
+    <div class="doc-search">
+      <span style="color:var(--muted)">⌕</span>
+      <input type="text" placeholder="Search documentation..."/>
+    </div>
+  </div>
+
+  <div class="doc-content">
+
+    <!-- OVERVIEW -->
+    <section id="sec-overview" class="active">
+      <div class="doc-h1">Project <span>Chakravyuh</span></div>
+      <p style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:2px;margin-bottom:24px;">NEXT-GENERATION AUTONOMOUS SOC ARCHITECTURE · MADE IN INDIA</p>
+      <p class="doc-lead">Project Chakravyuh is an enterprise-grade, fully autonomous Security Operations Center platform built on 100% open-source technologies. Named after the legendary multi-layered military formation from the Mahabharata, it delivers concentric layers of detection, monitoring, and automated response.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">ℹ Platform Philosophy</div>
+        Chakravyuh believes that advanced security operations should not be exclusive to large enterprises. This platform is free for Indian Defence, LEA, and Intelligence Agencies — and value-priced for the private sector.
+      </div>
+
+      <div class="doc-h2">What is Chakravyuh?</div>
+      <p class="doc-p">Chakravyuh is a unified SOC platform that replaces the need for separate SIEM, EDR, SOAR, Threat Intelligence Platform (TIP), and Digital Forensics tools. It provides a single-pane-of-glass view across your entire security infrastructure.</p>
+
+      <table class="doc-table">
+        <thead><tr><th>Capability</th><th>Commercial Equivalent</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>SIEM & Log Management</td><td>Splunk, Microsoft Sentinel</td><td><span class="badge badge-green">STABLE</span></td></tr>
+          <tr><td>EDR Platform</td><td>SentinelOne, CrowdStrike</td><td><span class="badge badge-green">STABLE</span></td></tr>
+          <tr><td>Network Analysis</td><td>Wireshark, Darktrace</td><td><span class="badge badge-green">STABLE</span></td></tr>
+          <tr><td>SOAR Automation</td><td>Splunk SOAR, Palo Alto XSOAR</td><td><span class="badge badge-green">STABLE</span></td></tr>
+          <tr><td>Threat Intelligence</td><td>Recorded Future, ThreatConnect</td><td><span class="badge badge-orange">BETA</span></td></tr>
+          <tr><td>Digital Forensics</td><td>EnCase, FTK</td><td><span class="badge badge-green">STABLE</span></td></tr>
+          <tr><td>Malware Analysis</td><td>VirusTotal Enterprise, ANY.RUN</td><td><span class="badge badge-orange">BETA</span></td></tr>
+          <tr><td>Real-time Threat Map</td><td>FireEye, Akamai</td><td><span class="badge badge-cyan">DEV</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Key Highlights</div>
+      <ul class="feat-list">
+        <li>100% open-source core — no black-box dependencies</li>
+        <li>Automated L1 triage using CVSS scoring and ML-based alert prioritization</li>
+        <li>10M+ malware signatures from VirusTotal, Kaspersky TI, and ANY.RUN</li>
+        <li>n8n-powered SOAR playbooks with drag-and-drop automation</li>
+        <li>Multi-format report generation: PDF, DOCX, XLSX with screenshots and timestamps</li>
+        <li>Air-gapped deployment support for classified environments</li>
+        <li>Real-time global threat map with attack origin attribution</li>
+        <li>Free forever for Indian Defence, Armed Forces, LEA, and Intelligence Agencies</li>
+      </ul>
+
+      <div class="page-nav">
+        <span></span>
+        <a class="next" onclick="show('install')">Installation Guide →</a>
+      </div>
+    </section>
+
+    <!-- INSTALLATION -->
+    <section id="sec-install">
+      <div class="doc-h1">Installation <span>Guide</span></div>
+      <p class="doc-lead">Chakravyuh supports three deployment modes: Docker Compose (recommended), bare-metal, and air-gapped. This guide covers the Docker Compose method.</p>
+
+      <div class="doc-h2">System Requirements</div>
+      <table class="doc-table">
+        <thead><tr><th>Component</th><th>Minimum</th><th>Recommended</th></tr></thead>
+        <tbody>
+          <tr><td>CPU</td><td>8 cores</td><td>16+ cores</td></tr>
+          <tr><td>RAM</td><td>16 GB</td><td>32–64 GB</td></tr>
+          <tr><td>Storage</td><td>500 GB SSD</td><td>2 TB NVMe</td></tr>
+          <tr><td>OS</td><td>Ubuntu 22.04 LTS</td><td>Ubuntu 22.04 / RHEL 9</td></tr>
+          <tr><td>Docker</td><td>24.x</td><td>25.x+</td></tr>
+          <tr><td>Network</td><td>1 Gbps</td><td>10 Gbps</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Step 1 — Clone the Repository</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · terminal</div>
+        <span class="comment"># Clone Project Chakravyuh</span><br/>
+        <span class="cmd">git clone</span> https://github.com/your-org/chakravyuh.git<br/>
+        <span class="cmd">cd</span> chakravyuh<br/><br/>
+        <span class="comment"># Verify the release signature</span><br/>
+        <span class="cmd">gpg --verify</span> chakravyuh-v1.0.0.tar.gz.sig
+      </div>
+
+      <div class="doc-h2">Step 2 — Configure Environment</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · .env configuration</div>
+        <span class="cmd">cp</span> .env.example .env<br/>
+        <span class="cmd">nano</span> .env<br/><br/>
+        <span class="comment"># Required environment variables:</span><br/>
+        <span class="keyword">CHAKRAVYUH_SECRET_KEY</span>=<span class="string">"your-secure-secret-key"</span><br/>
+        <span class="keyword">VIRUSTOTAL_API_KEY</span>=<span class="string">"your-vt-api-key"</span><br/>
+        <span class="keyword">SMTP_HOST</span>=<span class="string">"smtp.yourdomain.com"</span><br/>
+        <span class="keyword">OPENSEARCH_HOST</span>=<span class="string">"localhost"</span><br/>
+        <span class="keyword">OPENSEARCH_PORT</span>=<span class="string">"9200"</span><br/>
+        <span class="keyword">N8N_WEBHOOK_URL</span>=<span class="string">"http://n8n:5678"</span><br/>
+        <span class="keyword">THEHIVE_API_KEY</span>=<span class="string">"your-thehive-key"</span>
+      </div>
+
+      <div class="doc-h2">Step 3 — Deploy with Docker Compose</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · docker compose</div>
+        <span class="comment"># Pull and start all services</span><br/>
+        <span class="cmd">docker compose</span> -f docker-compose.yml up -d<br/><br/>
+        <span class="comment"># Verify all containers are running</span><br/>
+        <span class="cmd">docker compose</span> ps<br/><br/>
+        <span class="comment"># Expected output: 14 services running</span><br/>
+        <span class="string">chakravyuh-core         Up  0.0.0.0:8080->8080/tcp</span><br/>
+        <span class="string">opensearch              Up  9200/tcp</span><br/>
+        <span class="string">wazuh-manager           Up  1514/tcp, 1515/tcp</span><br/>
+        <span class="string">thehive                 Up  9000/tcp</span><br/>
+        <span class="string">n8n                     Up  5678/tcp</span><br/>
+        <span class="string">misp                    Up  443/tcp</span><br/>
+        <span class="string">suricata                Up  (monitoring)</span>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠ First-Time Setup</div>
+        After deployment, run <code style="font-family:'Share Tech Mono',monospace;color:var(--saffron)">./scripts/init-chakravyuh.sh</code> to seed the database with default Sigma rules, MITRE ATT&CK mapping, and create the initial admin account.
+      </div>
+
+      <div class="doc-h2">Step 4 — Access the Dashboard</div>
+      <div class="code-block">
+        <div class="code-block-title">service endpoints</div>
+        <span class="keyword">SOC Dashboard  </span> → <span class="string">http://localhost:8080</span><br/>
+        <span class="keyword">OpenSearch     </span> → <span class="string">http://localhost:5601</span><br/>
+        <span class="keyword">TheHive        </span> → <span class="string">http://localhost:9000</span><br/>
+        <span class="keyword">n8n Automation </span> → <span class="string">http://localhost:5678</span><br/>
+        <span class="keyword">MISP TI        </span> → <span class="string">https://localhost:443</span><br/><br/>
+        <span class="comment"># Default admin credentials (change immediately!)</span><br/>
+        <span class="keyword">Username: </span><span class="string">admin@chakravyuh.local</span><br/>
+        <span class="keyword">Password: </span><span class="string">Ch@kravyuh#2024!</span>
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('overview')">← Overview</a>
+        <a class="next" onclick="show('quickstart')">Quick Start →</a>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section id="sec-quickstart">
+      <div class="doc-h1">Quick <span>Start</span></div>
+      <p class="doc-lead">Get your first alert flowing through Chakravyuh in under 15 minutes.</p>
+
+      <div class="doc-h2">1. Connect a Log Source</div>
+      <p class="doc-p">Navigate to <strong>Settings → Log Sources → Add Source</strong>. Chakravyuh supports Syslog, Windows Event Forwarding, Filebeat, and cloud-native log connectors.</p>
+      <div class="code-block">
+        <div class="code-block-title">filebeat.yml · endpoint agent config</div>
+        <span class="keyword">output.logstash:</span><br/>
+        &nbsp;&nbsp;<span class="keyword">hosts:</span> <span class="string">["chakravyuh-server:5044"]</span><br/>
+        &nbsp;&nbsp;<span class="keyword">ssl.enabled:</span> <span class="string">true</span><br/><br/>
+        <span class="keyword">filebeat.inputs:</span><br/>
+        - <span class="keyword">type:</span> <span class="string">winlog</span><br/>
+        &nbsp;&nbsp;<span class="keyword">event_logs:</span><br/>
+        &nbsp;&nbsp;- <span class="keyword">name:</span> <span class="string">Security</span><br/>
+        &nbsp;&nbsp;- <span class="keyword">name:</span> <span class="string">System</span><br/>
+        &nbsp;&nbsp;- <span class="keyword">name:</span> <span class="string">Microsoft-Windows-Sysmon/Operational</span>
+      </div>
+
+      <div class="doc-h2">2. Enable Detection Rules</div>
+      <p class="doc-p">Go to <strong>Detection → Rule Manager</strong>. Enable the built-in Sigma rule packs:</p>
+      <ul class="feat-list">
+        <li>Windows Endpoint Detection (847 rules)</li>
+        <li>Linux System Monitoring (412 rules)</li>
+        <li>Network Intrusion Detection (238 rules)</li>
+        <li>Ransomware Behavioral Indicators (94 rules)</li>
+        <li>MITRE ATT&CK Coverage Pack (Complete)</li>
+      </ul>
+
+      <div class="doc-h2">3. Configure Your First Playbook</div>
+      <p class="doc-p">Navigate to <strong>Automation → n8n Playbooks → New Playbook</strong>. Use the built-in template "Critical Alert → Auto-Contain → Assign Analyst".</p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">ℹ Playbook Logic</div>
+        Chakravyuh automatically assigns cases to analysts based on CVSS score: CVSS 9.0+ → L2/L3, CVSS 7.0–8.9 → L1 Analyst, CVSS &lt;7.0 → Queue. This reduces manual triage by ~70%.
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('install')">← Installation</a>
+        <a class="next" onclick="show('architecture')">Architecture →</a>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="sec-architecture">
+      <div class="doc-h1">System <span>Architecture</span></div>
+      <p class="doc-lead">Chakravyuh follows a defense-in-depth model with six concentric layers of detection and response — mirroring the Chakravyuh military formation.</p>
+
+      <div class="arch-diagram">
+        <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:16px;letter-spacing:2px;">// CHAKRAVYUH DEFENSE LAYERS (OUTSIDE → IN)</div>
+        <div class="arch-row"><div class="arch-box layer1">LAYER 1 · NETWORK PERIMETER<br/>Suricata · Zeek · pfSense</div></div>
+        <div class="arch-row"><div class="arch-arrow">↓</div></div>
+        <div class="arch-row"><div class="arch-box layer2">LAYER 2 · ENDPOINT DEFENSE<br/>Wazuh · Velociraptor · YARA</div></div>
+        <div class="arch-row"><div class="arch-arrow">↓</div></div>
+        <div class="arch-row"><div class="arch-box layer3">LAYER 3 · SIEM CORRELATION<br/>OpenSearch · Sigma · ML Engine</div></div>
+        <div class="arch-row"><div class="arch-arrow">↓</div></div>
+        <div class="arch-row"><div class="arch-box layer4">LAYER 4 · THREAT INTELLIGENCE<br/>MISP · OpenCTI · VirusTotal · SpiderFoot · GreyNoise</div></div>
+        <div class="arch-row"><div class="arch-arrow">↓</div></div>
+        <div class="arch-row"><div class="arch-box layer5">LAYER 5 · SOAR RESPONSE<br/>n8n · TheHive · Cortex</div></div>
+        <div class="arch-row"><div class="arch-arrow">↓</div></div>
+        <div class="arch-row"><div class="arch-box" style="border-color:rgba(255,107,0,0.6);color:var(--saffron);background:rgba(255,107,0,0.1);">LAYER 6 · FORENSICS &amp; REPORTING<br/>Volatility · Autopsy · DFIR-IRIS</div></div>
+      </div>
+
+      <div class="doc-h2">Data Flow</div>
+      <p class="doc-p">Events flow from sources (endpoints, network devices, cloud) through a normalized ingestion pipeline into OpenSearch. The correlation engine applies Sigma rules and ML models to generate alerts. Alerts are enriched with threat intelligence and scored. High-severity alerts trigger automated n8n playbooks for containment and case creation.</p>
+
+      <div class="page-nav">
+        <a onclick="show('quickstart')">← Quick Start</a>
+        <a class="next" onclick="show('siem')">SIEM Module →</a>
+      </div>
+    </section>
+
+    <!-- SIEM -->
+    <section id="sec-siem">
+      <div class="doc-h1">SIEM <span>Engine</span></div>
+      <p class="doc-lead">The Chakravyuh SIEM provides real-time log aggregation, event correlation, and threat detection across all infrastructure layers.</p>
+
+      <div class="doc-h2">Supported Log Sources</div>
+      <table class="doc-table">
+        <thead><tr><th>Source Type</th><th>Protocol</th><th>Parser</th></tr></thead>
+        <tbody>
+          <tr><td>Windows Event Logs</td><td>WinRM / WEF</td><td>Built-in</td></tr>
+          <tr><td>Linux Syslog</td><td>Syslog UDP/TCP</td><td>Built-in</td></tr>
+          <tr><td>Network Flows</td><td>NetFlow v9, IPFIX</td><td>Built-in</td></tr>
+          <tr><td>Firewall Logs</td><td>Syslog</td><td>pfSense, OPNsense</td></tr>
+          <tr><td>Cloud Logs</td><td>API Pull</td><td>AWS CloudTrail, GCP</td></tr>
+          <tr><td>Application Logs</td><td>Filebeat</td><td>Custom Grok</td></tr>
+          <tr><td>DNS Logs</td><td>Syslog</td><td>BIND, Unbound</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Detection Rules</div>
+      <p class="doc-p">Chakravyuh uses Sigma rules as the detection backbone, providing vendor-agnostic, human-readable detection logic that can be audited and modified.</p>
+
+      <div class="code-block">
+        <div class="code-block-title">sigma rule · ransomware volume shadow deletion</div>
+        <span class="keyword">title:</span> <span class="string">Ransomware Shadow Copy Deletion</span><br/>
+        <span class="keyword">status:</span> <span class="string">stable</span><br/>
+        <span class="keyword">level:</span> <span class="string">critical</span><br/>
+        <span class="keyword">detection:</span><br/>
+        &nbsp;&nbsp;<span class="keyword">selection:</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">CommandLine|contains:</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">'vssadmin delete shadows'</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">'wbadmin delete catalog'</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">'bcdedit /set recoveryenabled no'</span><br/>
+        &nbsp;&nbsp;<span class="keyword">condition:</span> <span class="string">selection</span><br/>
+        <span class="keyword">falsepositives:</span><br/>
+        &nbsp;&nbsp;- <span class="string">Legitimate backup software</span>
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('architecture')">← Architecture</a>
+        <a class="next" onclick="show('edr')">EDR Platform →</a>
+      </div>
+    </section>
+
+    <!-- EDR -->
+    <section id="sec-edr">
+      <div class="doc-h1">EDR <span>Platform</span></div>
+      <p class="doc-lead">Chakravyuh EDR provides continuous endpoint visibility, behavioral detection, and automated response — without requiring a commercial agent.</p>
+
+      <div class="doc-h2">Agent Deployment</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · deploy wazuh agent (linux)</div>
+        <span class="cmd">curl</span> -so wazuh-agent.deb https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.7.0-1_amd64.deb<br/><br/>
+        <span class="keyword">WAZUH_MANAGER</span>=<span class="string">'chakravyuh-server'</span> \<br/>
+        <span class="keyword">WAZUH_AGENT_GROUP</span>=<span class="string">'chakravyuh-endpoints'</span> \<br/>
+        <span class="cmd">dpkg</span> -i ./wazuh-agent.deb<br/><br/>
+        <span class="cmd">systemctl</span> enable --now wazuh-agent
+      </div>
+
+      <div class="doc-h2">Response Actions</div>
+      <ul class="feat-list">
+        <li>Isolate endpoint from network (block all traffic except SOC)</li>
+        <li>Kill malicious process by PID</li>
+        <li>Quarantine file by hash</li>
+        <li>Capture live memory image with Volatility integration</li>
+        <li>Collect forensic artifacts (logs, prefetch, registry hives)</li>
+        <li>Force password reset for compromised accounts</li>
+      </ul>
+
+      <div class="page-nav">
+        <a onclick="show('siem')">← SIEM Engine</a>
+        <a class="next" onclick="show('forensics')">Digital Forensics →</a>
+      </div>
+    </section>
+
+    <!-- FORENSICS -->
+    <section id="sec-forensics">
+      <div class="doc-h1">Digital <span>Forensics</span></div>
+      <p class="doc-lead">Automated evidence acquisition, chain-of-custody preservation, and investigation report generation — built for both field analysts and court-admissible evidence.</p>
+
+      <div class="doc-h2">Evidence Acquisition</div>
+      <p class="doc-p">When an endpoint is flagged, Chakravyuh automatically triggers the acquisition pipeline, capturing memory, disk artifacts, network state, and process information in a timestamped, cryptographically-signed evidence bundle.</p>
+
+      <div class="doc-h2">Report Generation</div>
+      <p class="doc-p">The report generator produces initial investigation reports in three formats. All reports include executive summary, technical IOC listing, timeline graph, affected asset inventory, and analyst recommendations.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">ℹ Supported Formats</div>
+        PDF (court-ready, digitally signed), DOCX (editable for analyst notes), XLSX (IOC spreadsheet for further analysis and sharing with CERT-In).
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('edr')">← EDR Platform</a>
+        <a class="next" onclick="show('network')">Network Analysis →</a>
+      </div>
+    </section>
+
+    <!-- NETWORK -->
+    <section id="sec-network">
+      <div class="doc-h1">Network <span>Analysis</span></div>
+      <p class="doc-lead">Deep packet inspection, protocol analysis, and network forensics providing Wireshark-grade visibility with automated threat correlation.</p>
+
+      <div class="doc-h2">Capture Interfaces</div>
+      <ul class="feat-list">
+        <li>Passive TAP/SPAN port monitoring for zero-impact capture</li>
+        <li>NetFlow/IPFIX collection from routers and switches</li>
+        <li>DNS query logging and anomaly detection</li>
+        <li>SSL/TLS certificate analysis and pinning detection</li>
+        <li>C2 beacon detection using JA3/JA3S fingerprinting</li>
+        <li>Protocol anomaly detection (DNS tunneling, ICMP covert channel)</li>
+      </ul>
+
+      <div class="page-nav">
+        <a onclick="show('forensics')">← Digital Forensics</a>
+        <a class="next" onclick="show('soar')">SOAR Automation →</a>
+      </div>
+    </section>
+
+    <!-- SOAR -->
+    <section id="sec-soar">
+      <div class="doc-h1">SOAR · <span>n8n Automation</span></div>
+      <p class="doc-lead">Visual, code-free playbook automation using n8n. Build sophisticated incident response workflows that auto-execute on alert conditions.</p>
+
+      <div class="doc-h2">Built-in Playbooks</div>
+      <table class="doc-table">
+        <thead><tr><th>Playbook</th><th>Trigger</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td>Ransomware Response</td><td>CVSS ≥ 9.0</td><td>Isolate → Memory dump → Assign L3 → Notify CISO</td></tr>
+          <tr><td>Phishing Triage</td><td>Email alert</td><td>Extract IOCs → VT scan → Block sender → Create case</td></tr>
+          <tr><td>Brute Force Block</td><td>&gt;50 failures/min</td><td>Block IP → Log → Notify → Create ticket</td></tr>
+          <tr><td>Malware Quarantine</td><td>YARA match</td><td>Quarantine file → Hash → VT lookup → Alert analyst</td></tr>
+          <tr><td>Lateral Movement</td><td>SMB anomaly</td><td>Isolate segment → Capture traffic → Escalate to L2</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Case Assignment Logic</div>
+      <div class="code-block">
+        <div class="code-block-title">n8n · case assignment pseudocode</div>
+        <span class="keyword">IF</span> cvss_score <span class="keyword">>=</span> <span class="string">9.0</span> <span class="keyword">AND</span> asset_criticality <span class="keyword">==</span> <span class="string">"CRITICAL"</span>:<br/>
+        &nbsp;&nbsp;assign_to(<span class="string">"L3_ANALYST"</span>), notify(<span class="string">"CISO"</span>), escalate(<span class="string">"INCIDENT"</span>)<br/>
+        <span class="keyword">ELIF</span> cvss_score <span class="keyword">>=</span> <span class="string">7.0</span>:<br/>
+        &nbsp;&nbsp;assign_to(<span class="string">"L2_ANALYST"</span>), sla_timer(<span class="string">"4h"</span>)<br/>
+        <span class="keyword">ELIF</span> cvss_score <span class="keyword">>=</span> <span class="string">4.0</span>:<br/>
+        &nbsp;&nbsp;assign_to(<span class="string">"L1_ANALYST"</span>), queue(<span class="string">"STANDARD"</span>)<br/>
+        <span class="keyword">ELSE</span>:<br/>
+        &nbsp;&nbsp;auto_close_with_note(<span class="string">"LOW_RISK"</span>)
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('network')">← Network Analysis</a>
+        <a class="next" onclick="show('threatintel')">Threat Intelligence →</a>
+      </div>
+    </section>
+
+    <!-- THREAT INTEL -->
+    <section id="sec-threatintel">
+      <div class="doc-h1">Threat <span>Intelligence</span></div>
+      <p class="doc-lead">Multi-source, continuously updated threat intelligence with automatic IOC enrichment, threat actor profiling, and MITRE ATT&CK mapping.</p>
+
+      <div class="doc-h2">Feed Sources</div>
+      <table class="doc-table">
+        <thead><tr><th>Source</th><th>Type</th><th>Update Freq</th><th>License</th></tr></thead>
+        <tbody>
+          <tr><td>VirusTotal</td><td>Malware / IOC</td><td>Real-time</td><td>API Key</td></tr>
+          <tr><td>Kaspersky TI</td><td>APT / Threat Actor</td><td>Hourly</td><td>API Key</td></tr>
+          <tr><td>ANY.RUN</td><td>Sandbox / Behavioral</td><td>Daily</td><td>API Key</td></tr>
+          <tr><td>MISP Community</td><td>Shared IOCs</td><td>Real-time</td><td>Free</td></tr>
+          <tr><td>Abuse.ch</td><td>Malware URLs</td><td>Real-time</td><td>Free</td></tr>
+          <tr><td>CERT-In</td><td>India-specific</td><td>Daily</td><td>Free</td></tr>
+          <tr><td>OpenCTI</td><td>Structured CTI</td><td>Real-time</td><td>Free</td></tr>
+          <tr><td>SpiderFoot</td><td>OSINT Chaining</td><td>On-demand</td><td>Free (OSS)</td></tr>
+          <tr><td>GreyNoise</td><td>Noise Filtering / IP Context</td><td>Real-time</td><td>Free Community API</td></tr>
+        </tbody>
+      </table>
+
+      <div class="page-nav">
+        <a onclick="show('soar')">← SOAR Automation</a>
+        <a class="next" onclick="show('spiderfoot')">SpiderFoot OSINT →</a>
+      </div>
+    </section>
+
+    <!-- SPIDERFOOT OSINT -->
+    <section id="sec-spiderfoot">
+      <div class="doc-h1">SpiderFoot <span>OSINT Engine</span></div>
+      <p class="doc-lead">Automated open-source intelligence chaining — pivots across 200+ data sources to build relationship graphs between IPs, domains, threat actors, email addresses, and leaked credentials.</p>
+
+      <div class="doc-h2">Why SpiderFoot?</div>
+      <p class="doc-p">Commercial tools like Maltego charge per-transform and require a desktop client. SpiderFoot is fully open-source, self-hostable, and integrates via REST API — making it the ideal OSINT engine for a sovereignty-aware SOC platform. When a Chakravyuh alert fires on a suspicious IP or domain, SpiderFoot is invoked automatically to build the full intelligence picture.</p>
+
+      <div class="doc-h2">What SpiderFoot Chains Together</div>
+      <table class="doc-table">
+        <thead><tr><th>Starting Entity</th><th>SpiderFoot Discovers</th><th>Use in SOC</th></tr></thead>
+        <tbody>
+          <tr><td>Suspicious IP</td><td>ASN, hosting provider, blacklist hits, related domains, open ports, geolocation, historical WHOIS</td><td>Threat actor attribution</td></tr>
+          <tr><td>Malicious Domain</td><td>Registrant email, DNS history, co-hosted domains, certificate fingerprints, Pastebin leaks</td><td>C2 infrastructure mapping</td></tr>
+          <tr><td>Email Address</td><td>Breach databases, social profiles, dark web leaks, affiliated usernames</td><td>Insider threat / credential compromise</td></tr>
+          <tr><td>File Hash (SHA256)</td><td>VirusTotal hits, AV detections, malware family, related samples</td><td>Malware campaign correlation</td></tr>
+          <tr><td>Company / Org name</td><td>Exposed assets, leaked documents, employee data, attack surface</td><td>Attack surface discovery</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Integration with Chakravyuh</div>
+      <div class="callout callout-tip">
+        <div class="callout-title">⚡ Automatic OSINT on Every High-Severity Alert</div>
+        When an alert crosses SRS ≥ 7.0 (High band), Chakravyuh automatically triggers a SpiderFoot scan on the alert's source IP and any associated domains, and attaches the relationship graph to the case file.
+      </div>
+
+      <div class="doc-h3">Self-Hosted Setup</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · deploy SpiderFoot</div>
+        <span class="comment"># Already included in docker-compose.yml</span><br/>
+        <span class="cmd">docker compose</span> up -d chakravyuh-spiderfoot<br/><br/>
+        <span class="comment"># Access SpiderFoot UI</span><br/>
+        <span class="keyword">SpiderFoot UI</span> → <span class="string">http://localhost:5009</span><br/>
+        <span class="keyword">SpiderFoot API</span> → <span class="string">http://localhost:5009/api/v1</span>
+      </div>
+
+      <div class="doc-h3">API Configuration (.env)</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · .env</div>
+        <span class="keyword">SPIDERFOOT_URL</span>=<span class="string">"http://localhost:5009"</span><br/>
+        <span class="keyword">SPIDERFOOT_API_KEY</span>=<span class="string">"generated_from_spiderfoot_ui"</span><br/>
+        <span class="keyword">SPIDERFOOT_AUTO_SCAN</span>=<span class="string">"true"</span>  <span class="comment"># auto-scan on SRS ≥ 7.0</span>
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('threatintel')">← Threat Intelligence</a>
+        <a class="next" onclick="show('greynoise')">GreyNoise →</a>
+      </div>
+    </section>
+
+    <!-- GREYNOISE -->
+    <section id="sec-greynoise">
+      <div class="doc-h1">GreyNoise <span>Intelligence</span></div>
+      <p class="doc-lead">Separates internet background noise from targeted attacks — instantly tells analysts whether a suspicious IP is scanning the entire internet or specifically targeting your infrastructure.</p>
+
+      <div class="doc-h2">The Problem GreyNoise Solves</div>
+      <p class="doc-p">Without GreyNoise, a typical SOC wastes 40–60% of triage time investigating Shodan crawlers, Censys scanners, and security research bots that trigger alerts on every internet-facing IP. GreyNoise tags these as "benign background noise" automatically, so analysts focus only on IPs that are actually targeting your organisation.</p>
+
+      <div class="doc-h2">Classification Types</div>
+      <table class="doc-table">
+        <thead><tr><th>GreyNoise Tag</th><th>Meaning</th><th>Chakravyuh Response</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--red)">MALICIOUS</td><td>IP is actively attacking systems, confirmed by GreyNoise sensors</td><td>Alert priority upgraded; SRS score boosted</td></tr>
+          <tr><td style="color:var(--saffron)">UNKNOWN</td><td>IP not observed in GreyNoise sensor network</td><td>Standard investigation workflow</td></tr>
+          <tr><td style="color:var(--green)">BENIGN</td><td>Known scanner/researcher — internet background noise</td><td>Alert auto-deprioritised; analyst notified</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Integration</div>
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 Free Community API</div>
+        GreyNoise offers a free Community API with 10,000 lookups/month — sufficient for most SOC deployments. Enterprise API available for high-volume environments. Sign up at: <strong>viz.greynoise.io</strong>
+      </div>
+
+      <div class="doc-h3">Configuration</div>
+      <div class="code-block">
+        <div class="code-block-title">bash · .env</div>
+        <span class="keyword">GREYNOISE_API_KEY</span>=<span class="string">"your_community_api_key"</span><br/>
+        <span class="keyword">GREYNOISE_AUTO_ENRICH</span>=<span class="string">"true"</span>  <span class="comment"># enrich every inbound IP alert</span>
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('spiderfoot')">← SpiderFoot OSINT</a>
+        <a class="next" onclick="show('malware')">Malware Analysis →</a>
+      </div>
+    </section>
+
+    <!-- MALWARE -->
+    <section id="sec-malware">
+      <div class="doc-h1">Malware <span>Analysis</span></div>
+      <p class="doc-lead">Automated malware classification combining static analysis (YARA, PE headers, strings), dynamic sandboxing, and 10M+ signature databases.</p>
+
+      <div class="doc-h2">Classification Engine</div>
+      <p class="doc-p">When a suspicious file is detected, Chakravyuh submits it to a multi-stage analysis pipeline that classifies it by malware family within seconds.</p>
+
+      <div class="doc-h3">Supported Malware Categories</div>
+      <ul class="feat-list">
+        <li><strong style="color:var(--red)">Ransomware</strong> — File encryption behavior, shadow deletion, ransom note creation</li>
+        <li><strong style="color:var(--saffron)">Trojan / RAT</strong> — Persistence, C2 communication, keylogging patterns</li>
+        <li><strong style="color:var(--gold)">Worm</strong> — Self-propagation, SMB/network spreading behavior</li>
+        <li><strong style="color:var(--cyan)">Spyware</strong> — Screenshot, audio capture, credential harvesting</li>
+        <li><strong style="color:var(--green)">Rootkit</strong> — Kernel-level hiding, hook detection</li>
+        <li><strong style="color:var(--muted)">Adware / PUA</strong> — Low-risk classification</li>
+      </ul>
+
+      <div class="page-nav">
+        <a onclick="show('greynoise')">← GreyNoise</a>
+        <a class="next" onclick="show('reporting')">Report Generator →</a>
+      </div>
+    </section>
+
+    <!-- REPORTING -->
+    <section id="sec-reporting">
+      <div class="doc-h1">Report <span>Generator</span></div>
+      <p class="doc-lead">Auto-generate professional investigation reports with one click — containing full incident timelines, IOC listings, screenshots, and recommended actions.</p>
+
+      <div class="doc-h2">Report Contents</div>
+      <ul class="feat-list">
+        <li>Executive Summary — non-technical overview for management</li>
+        <li>Incident Timeline — chronological activity graph with timestamps</li>
+        <li>IOC List — all extracted indicators with VirusTotal confidence scores</li>
+        <li>Affected Assets — endpoint inventory with criticality ratings</li>
+        <li>MITRE ATT&CK Matrix — techniques mapped to the incident</li>
+        <li>Screenshots — automatic capture of key dashboard states at incident time</li>
+        <li>Analyst Recommendations — suggested remediation steps</li>
+        <li>Chain of Custody — evidence log with SHA-256 hashes and timestamps</li>
+      </ul>
+
+      <div class="callout callout-info">
+        <div class="callout-title">ℹ Available Formats</div>
+        PDF (digitally signed, court-admissible), DOCX (editable for analyst additions), XLSX (IOC data for CERT-In sharing / further analysis)
+      </div>
+
+      <div class="page-nav">
+        <a onclick="show('malware')">← Malware Analysis</a>
+        <a class="next" onclick="show('docker')">Deployment →</a>
+      </div>
+    </section>
+
+    <!-- REMAINING STUBS -->
+    <section id="sec-config"><div class="doc-h1">System <span>Configuration</span></div><p class="doc-lead">Full configuration reference coming soon.</p><div class="page-nav"><span></span><a class="next" onclick="show('integrations')">Integrations →</a></div></section>
+    <section id="sec-integrations"><div class="doc-h1">Third-Party <span>Integrations</span></div>
+      <p class="doc-lead">All integrations are controlled by <code>backend/integrations/registry.json</code>. Set <code>enabled: true</code> and add your API key to activate any tool. No restart required — platform hot-reloads on file change.</p>
+
+      <div class="doc-h2">Threat Intelligence</div>
+      <table class="doc-table">
+        <thead><tr><th>Tool</th><th>Free Tier</th><th>Configuration</th><th>Get Key</th></tr></thead>
+        <tbody>
+          <tr><td>VirusTotal v3</td><td>500/day</td><td><code>VIRUSTOTAL_API_KEY</code> in .env</td><td>virustotal.com/gui/join-us</td></tr>
+          <tr><td>AlienVault OTX</td><td>Unlimited</td><td><code>OTX_API_KEY</code> in .env</td><td>otx.alienvault.com</td></tr>
+          <tr><td>MalwareBazaar</td><td>Free — no key</td><td>Set enabled:true in registry.json</td><td>Not required</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">IP Reputation</div>
+      <table class="doc-table">
+        <thead><tr><th>Tool</th><th>Free Tier</th><th>Configuration</th><th>Get Key</th></tr></thead>
+        <tbody>
+          <tr><td>GreyNoise</td><td>10,000/day</td><td><code>GREYNOISE_API_KEY</code> in .env</td><td>viz.greynoise.io/signup</td></tr>
+          <tr><td>AbuseIPDB</td><td>1,000/day</td><td><code>ABUSEIPDB_API_KEY</code> in .env</td><td>abuseipdb.com/register</td></tr>
+          <tr><td>Shodan</td><td>100/month ($49 lifetime unlimited)</td><td><code>SHODAN_API_KEY</code> in .env</td><td>account.shodan.io</td></tr>
+          <tr><td>IPinfo.io</td><td>50,000/month</td><td><code>IPINFO_API_KEY</code> in .env</td><td>ipinfo.io/signup</td></tr>
+          <tr><td>CIRCL Passive DNS</td><td>Free — no key</td><td>Set enabled:true in registry.json</td><td>Not required</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">File Analysis (Local — No API Key)</div>
+      <table class="doc-table">
+        <thead><tr><th>Tool</th><th>File Types</th><th>Enable</th></tr></thead>
+        <tbody>
+          <tr><td>YARA Engine</td><td>Any file type — pattern matching</td><td>registry.json → file_analysis → yara → enabled: true</td></tr>
+          <tr><td>ExifTool</td><td>Any — metadata extraction</td><td>registry.json → file_analysis → exiftool → enabled: true</td></tr>
+          <tr><td>pdfid + pdf-parser</td><td>PDF — JS/OpenAction/streams</td><td>registry.json → file_analysis → pdfid → enabled: true</td></tr>
+          <tr><td>oletools</td><td>DOC/XLS/PPT/MSG/EML — macros</td><td>registry.json → file_analysis → oletools → enabled: true</td></tr>
+          <tr><td>Archive Analyzer</td><td>ZIP/RAR/7Z/TAR — structure check</td><td>registry.json → file_analysis → archive_analyzer → enabled: true</td></tr>
+          <tr><td>Detect-It-Easy</td><td>Any — packer/type detection</td><td>registry.json → file_analysis → detect_it_easy → enabled: true</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Mail Forensics</div>
+      <table class="doc-table">
+        <thead><tr><th>Tool</th><th>Free Tier</th><th>Configuration</th></tr></thead>
+        <tbody>
+          <tr><td>PhishTank</td><td>Free with registration</td><td><code>PHISHTANK_API_KEY</code> in .env</td></tr>
+          <tr><td>MXToolbox</td><td>500/month</td><td><code>MXTOOLBOX_API_KEY</code> in .env</td></tr>
+          <tr><td>Email Header Analyzer</td><td>Free — built-in</td><td>Set enabled:true in registry.json</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">DFIR Tools (Self-Hosted / Local)</div>
+      <table class="doc-table">
+        <thead><tr><th>Tool</th><th>Purpose</th><th>Setup</th></tr></thead>
+        <tbody>
+          <tr><td>Volatility 3</td><td>Memory forensics</td><td><code>pip install volatility3</code> → set binary_path in registry.json</td></tr>
+          <tr><td>Timesketch</td><td>DFIR timeline analysis</td><td>Docker: deploy_timesketch.sh → set URL in registry.json</td></tr>
+          <tr><td>Hayabusa</td><td>Windows Event Log hunting</td><td>Download binary from GitHub → set binary_path in registry.json</td></tr>
+          <tr><td>Velociraptor</td><td>Live remote collection</td><td>velociraptor config generate -i → set URL + API key</td></tr>
+          <tr><td>CAPE Sandbox</td><td>Dynamic malware detonation</td><td>Self-hosted VM required → set URL + API key in registry.json</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-h2">Case Management & Notifications</div>
+      <table class="doc-table">
+        <thead><tr><th>Tool</th><th>Configuration</th></tr></thead>
+        <tbody>
+          <tr><td>TheHive 5 (port 9000)</td><td>Generate API key: Admin → API Keys → Create → set THEHIVE_API_KEY</td></tr>
+          <tr><td>n8n (port 5678)</td><td>Configure webhooks in n8n UI after docker compose up</td></tr>
+          <tr><td>Email (SMTP)</td><td>Gmail App Password: myaccount.google.com/apppasswords → set SMTP_USER + SMTP_PASSWORD</td></tr>
+          <tr><td>Slack</td><td>Incoming Webhook URL → set in registry.json → notifications → slack</td></tr>
+          <tr><td>Jira / ServiceNow</td><td>Set URL + API token in registry.json → case_management section</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip" style="margin-top:20px;">
+        <div class="callout-title">📋 Complete Step-by-Step API Key Guide</div>
+        See <code>API_KEYS_GUIDE.md</code> in the skeleton code for instructions to get every key including free-tier signup links, exact configuration locations, and minimum viable configuration for MVP demo.
+      </div>
+
+      <div class="page-nav"><a onclick="show('config')">← Config</a><a class="next" onclick="show('playbooks')">Playbooks →</a></div></section>
+    <section id="sec-playbooks"><div class="doc-h1">Playbook <span>Reference</span></div><p class="doc-lead">Complete playbook library documentation coming soon.</p><div class="page-nav"><a onclick="show('integrations')">← Integrations</a><a class="next" onclick="show('users')">User Roles →</a></div></section>
+    <section id="sec-users"><div class="doc-h1">User <span>Roles &amp; Permissions</span></div><p class="doc-lead">RBAC configuration guide coming soon.</p><div class="page-nav"><a onclick="show('playbooks')">← Playbooks</a><a class="next" onclick="show('docker')">Docker →</a></div></section>
+    <section id="sec-docker"><div class="doc-h1">Docker <span>Deployment</span></div><p class="doc-lead">Full Docker Compose reference and Kubernetes HELM chart guide.</p><div class="page-nav"><a onclick="show('users')">← User Roles</a><a class="next" onclick="show('airgap')">Air-Gap →</a></div></section>
+    <section id="sec-airgap"><div class="doc-h1">Air-Gapped <span>Deployment</span></div><p class="doc-lead">Step-by-step guide for classified / offline environments. Available under Defence MoU.</p><div class="page-nav"><a onclick="show('docker')">← Docker</a><a class="next" onclick="show('licensing')">Licensing →</a></div></section>
+    <section id="sec-licensing"><div class="doc-h1">Licensing <span>&amp; Pricing</span></div>
+      <p class="doc-lead">Full licensing details will be published at the platform's commercial launch. In the meantime, here is what is confirmed.</p>
+      <table class="doc-table">
+        <thead><tr><th>Sector</th><th>Status</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td>Defence, Armed Forces, LEA &amp; Intelligence</td><td style="color:var(--green)">✓ FREE</td><td>Always free under formal MoU. Full platform access including air-gapped deployment.</td></tr>
+          <tr><td>Open Source Community</td><td style="color:var(--green)">✓ FREE</td><td>Core platform remains open-source forever. Self-hosted Docker deployment.</td></tr>
+          <tr><td>Education (IITs, NITs, Universities)</td><td style="color:var(--gold)">Discounted</td><td>Significant discount on per-seat pricing. Details at launch.</td></tr>
+          <tr><td>Enterprise / Private Sector</td><td style="color:var(--cyan)">Licensed</td><td>30-day full-featured trial at launch. Annual subscription pricing TBA.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-info" style="margin-top:24px;">
+        <div class="callout-title">📅 Pricing Announced at Launch</div>
+        Detailed tier pricing will be revealed once the Enterprise Edition completes testing. Watch the GitHub repository for announcements.
+      </div>
+      <div class="page-nav"><a onclick="show('airgap')">← Air-Gap</a><a class="next" onclick="show('api')">API Reference →</a></div></section>
+    <section id="sec-api"><div class="doc-h1">API <span>Reference</span></div><p class="doc-lead">Full REST API documentation with Swagger UI coming soon.</p><div class="page-nav"><a onclick="show('licensing')">← Licensing</a><a class="next" onclick="show('changelog')">Changelog →</a></div></section>
+    <section id="sec-changelog">
+      <div class="doc-h1">Changelog <span>&amp; Roadmap</span></div>
+      <div class="doc-h2">v1.0.0 — Initial Release</div>
+      <ul class="feat-list">
+        <li>SIEM engine with Sigma rule support</li>
+        <li>EDR agent with automated isolation</li>
+        <li>Digital forensics &amp; artifact preservation</li>
+        <li>n8n SOAR playbooks</li>
+        <li>Multi-format report generation</li>
+        <li>VirusTotal &amp; MISP integration</li>
+      </ul>
+      <div class="doc-h2">Roadmap — v1.1</div>
+      <ul class="feat-list">
+        <li>Real-time threat map (geo-visualization)</li>
+        <li>Mobile SOC analyst app</li>
+        <li>AI-powered alert summarization</li>
+        <li>CERT-In auto-reporting integration</li>
+        <li>Multi-tenancy support</li>
+      </ul>
+      <div class="page-nav"><a onclick="show('api')">← API Reference</a><span></span></div>
+    </section>
+
+  </div><!-- end doc-content -->
+</div><!-- end main -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.doc-content section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+  document.querySelector('.main').scrollTop = 0;
+}
+</script>
+</body>
+</html>
