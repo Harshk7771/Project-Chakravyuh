@@ -45,10 +45,6 @@ Access dashboard at `http://localhost:8080`
 | Sector | Cost |
 |--------|------|
 |Project Chakravyuh is currently in active development. Detailed licensing tiers — including Defence &amp; LEA, Enterprise, Education, and Community editions — will be published once the platform reaches its first stable commercial release.| **Under Development** |
-| Defence, Armed Forces, LEA, Intelligence | **MOU Based** |
-| Education (IITs, NITs, Universities) | **Discounted** |
-| Enterprise / Private Sector | **Licensed (30-day trial)** |
-| Community / Open Source | **FREE (core)** |
 
 ---
 
