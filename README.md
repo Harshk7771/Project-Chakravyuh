@@ -13,14 +13,14 @@
 
 | Resource | URL |
 |----------|-----|
-| 🌐 **Main Site** | `https://harshk7771.github.io/chakravyuh/` |
-| 📖 **Documentation** | `https://harshk7771.github.io/chakravyuh/docs/` |
-| 🐙 **GitHub** | `https://github.com/harshk7771/chakravyuh` |
+| 🌐 **Main Site** | `https://harshk7771.github.io/Project-Chakravyuh/` |
+| 📖 **Documentation** | `https://harshk7771.github.io/Project-Chakravyuh/docs/` |
+| 🐙 **GitHub** | `https://github.com/harshk7771/Project-Chakravyuh` |
 
 ## ⚡ Quick Deploy
 
 ```bash
-git clone https://github.com/harshk7771/chakravyuh.git
+git clone https://github.com/harshk7771/Project-Chakravyuh.git
 cd chakravyuh
 cp .env.example .env
 docker compose up -d
