@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 110" width="480" height="110" role="img" aria-label="Project Chakravyuh — Hex Shield Logo">
+  <defs>
+    <linearGradient id="hexG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="60%" stop-color="#FF6B00"/>
+      <stop offset="100%" stop-color="#CC4A00"/>
+    </linearGradient>
+    <linearGradient id="barG" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF6B00"/>
+      <stop offset="60%" stop-color="#FFB300" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#FF6B00" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="1.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ── HEX SHIELD EMBLEM (centred at 55,55) ── -->
+  <!-- Outer hex -->
+  <polygon points="55,5 97,28 97,82 55,105 13,82 13,28"
+    fill="none" stroke="url(#hexG)" stroke-width="2.2"
+    filter="url(#glow)" opacity="0.97"/>
+  <!-- Second hex ring -->
+  <polygon points="55,17 85,34 85,76 55,93 25,76 25,34"
+    fill="none" stroke="#FF6B00" stroke-width="0.9" opacity="0.35"/>
+  <!-- Inner hex -->
+  <polygon points="55,29 75,40 75,70 55,81 35,70 35,40"
+    fill="none" stroke="#FFB300" stroke-width="1.1" opacity="0.6"/>
+  <!-- Fill dark interior -->
+  <polygon points="55,6 96,28 96,82 55,104 14,82 14,28" fill="#060E1A" opacity="0.95"/>
+
+  <!-- Honeycomb grid fill -->
+  <g stroke="#FF6B00" stroke-width="0.5" fill="none" opacity="0.13">
+    <polygon points="55,32 62,36 62,44 55,48 48,44 48,36"/>
+    <polygon points="41,40 48,44 48,52 41,56 34,52 34,44"/>
+    <polygon points="69,40 76,44 76,52 69,56 62,52 62,44"/>
+    <polygon points="55,48 62,52 62,60 55,64 48,60 48,52"/>
+    <polygon points="41,56 48,60 48,68 41,72 34,68 34,60"/>
+    <polygon points="69,56 76,60 76,68 69,72 62,68 62,60"/>
+  </g>
+
+  <!-- Top notch accent -->
+  <line x1="55" y1="5" x2="55" y2="17" stroke="#FFD700" stroke-width="1.6" opacity="0.85"/>
+  <!-- Bottom base dot -->
+  <circle cx="55" cy="105" r="2.5" fill="#FF6B00" opacity="0.6"/>
+
+  <!-- Corner accent ticks on outer hex -->
+  <g stroke="#FFB300" stroke-width="1" opacity="0.5">
+    <line x1="13" y1="28" x2="20" y2="32"/>
+    <line x1="97" y1="28" x2="90" y2="32"/>
+    <line x1="13" y1="82" x2="20" y2="78"/>
+    <line x1="97" y1="82" x2="90" y2="78"/>
+  </g>
+
+  <!-- Centre target reticle -->
+  <circle cx="55" cy="55" r="14" fill="none" stroke="#FF6B00" stroke-width="0.7" opacity="0.35"/>
+  <circle cx="55" cy="55" r="9"  fill="url(#hexG)" filter="url(#glow)"/>
+  <g stroke="#060E1A" stroke-width="1.8" stroke-linecap="round">
+    <line x1="55" y1="48" x2="55" y2="52"/>
+    <line x1="55" y1="58" x2="55" y2="62"/>
+    <line x1="48" y1="55" x2="52" y2="55"/>
+    <line x1="58" y1="55" x2="62" y2="55"/>
+  </g>
+  <circle cx="55" cy="55" r="4" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.9"/>
+  <circle cx="55" cy="47" r="1.8" fill="#FFD700" opacity="0.95"/>
+
+  <!-- ── WORDMARK ── -->
+  <!-- PROJECT eyebrow -->
+  <text x="128" y="42"
+    font-family="'Share Tech Mono','Courier New',monospace"
+    font-size="10.5" font-weight="400" letter-spacing="5"
+    fill="#FF6B00" opacity="0.9">PROJECT</text>
+
+  <!-- CHAKRAVYUH main -->
+  <text x="125" y="76"
+    font-family="'Rajdhani','Exo 2',Arial,sans-serif"
+    font-size="42" font-weight="700" letter-spacing="4"
+    fill="#F0F4FF" filter="url(#softGlow)">CHAKRAVYUH</text>
+
+  <!-- Saffron underline bar -->
+  <rect x="125" y="82" width="348" height="1.6" fill="url(#barG)" rx="1"/>
+
+  <!-- Devanagari -->
+  <text x="127" y="97"
+    font-family="'Tiro Devanagari Hindi','Noto Sans Devanagari',serif"
+    font-size="13" letter-spacing="3"
+    fill="#FF6B00" opacity="0.4">चक्रव्यूह</text>
+
+  <!-- Tagline -->
+  <text x="127" y="108"
+    font-family="'Share Tech Mono','Courier New',monospace"
+    font-size="8.5" letter-spacing="2.5"
+    fill="#8899BB" opacity="0.8">AUTONOMOUS SOC ARCHITECTURE · MADE IN INDIA</text>
+</svg>

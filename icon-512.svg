@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Chakravyuh app icon">
+  <defs>
+    <linearGradient id="hg512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="60%" stop-color="#FF6B00"/>
+      <stop offset="100%" stop-color="#CC4A00"/>
+    </linearGradient>
+    <radialGradient id="bg512" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#0D1F3C"/>
+      <stop offset="100%" stop-color="#060E1A"/>
+    </radialGradient>
+    <radialGradient id="glow512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF6B00" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FF6B00" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="cg512">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="sg512">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="14" r="0.7" fill="#FF6B00" opacity="0.1"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg512)" rx="80"/>
+  <rect width="512" height="512" fill="url(#dots)" rx="80" opacity="0.6"/>
+  <!-- Ambient glow -->
+  <circle cx="256" cy="256" r="220" fill="url(#glow512)"/>
+
+  <!-- ── HEX SHIELD ── -->
+  <!-- Outer hex -->
+  <polygon points="256,28 434,131 434,381 256,484 78,381 78,131"
+    fill="none" stroke="url(#hg512)" stroke-width="6"
+    filter="url(#sg512)" opacity="0.97"/>
+  <!-- Second ring -->
+  <polygon points="256,72 402,155 402,357 256,440 110,357 110,155"
+    fill="none" stroke="#FF6B00" stroke-width="2.5" opacity="0.35"/>
+  <!-- Inner ring -->
+  <polygon points="256,116 370,179 370,333 256,396 142,333 142,179"
+    fill="none" stroke="#FFB300" stroke-width="3" opacity="0.55"/>
+
+  <!-- Honeycomb cells -->
+  <g stroke="#FF6B00" stroke-width="1.2" fill="none" opacity="0.12">
+    <polygon points="256,130 290,150 290,190 256,210 222,190 222,150"/>
+    <polygon points="188,170 222,190 222,230 188,250 154,230 154,190"/>
+    <polygon points="324,170 358,190 358,230 324,250 290,230 290,190"/>
+    <polygon points="256,210 290,230 290,270 256,290 222,270 222,230"/>
+    <polygon points="188,250 222,270 222,310 188,330 154,310 154,270"/>
+    <polygon points="324,250 358,270 358,310 324,330 290,310 290,270"/>
+    <polygon points="256,290 290,310 290,350 256,370 222,350 222,310"/>
+  </g>
+
+  <!-- Top notch -->
+  <line x1="256" y1="28" x2="256" y2="72" stroke="#FFD700" stroke-width="4" opacity="0.85"/>
+  <!-- Corner accents -->
+  <g stroke="#FFB300" stroke-width="2.5" opacity="0.5">
+    <line x1="78" y1="131"  x2="105" y2="147"/>
+    <line x1="434" y1="131" x2="407" y2="147"/>
+    <line x1="78" y1="381"  x2="105" y2="365"/>
+    <line x1="434" y1="381" x2="407" y2="365"/>
+  </g>
+
+  <!-- Centre reticle -->
+  <circle cx="256" cy="256" r="68" fill="none" stroke="#FF6B00" stroke-width="2" opacity="0.3"/>
+  <circle cx="256" cy="256" r="48" fill="url(#hg512)" filter="url(#cg512)"/>
+  <g stroke="#060E1A" stroke-width="8" stroke-linecap="round">
+    <line x1="256" y1="222" x2="256" y2="240"/>
+    <line x1="256" y1="272" x2="256" y2="290"/>
+    <line x1="222" y1="256" x2="240" y2="256"/>
+    <line x1="272" y1="256" x2="290" y2="256"/>
+  </g>
+  <circle cx="256" cy="256" r="20" fill="none" stroke="#FFD700" stroke-width="3.5" opacity="0.9"/>
+  <circle cx="256" cy="210" r="8" fill="#FFD700" opacity="0.95"/>
+
+  <!-- Bottom wordmark -->
+  <text x="256" y="456" text-anchor="middle"
+    font-family="'Rajdhani','Exo 2',Arial,sans-serif"
+    font-size="44" font-weight="700" letter-spacing="6"
+    fill="#F0F4FF" opacity="0.9">CHAKRAVYUH</text>
+  <text x="256" y="488" text-anchor="middle"
+    font-family="'Share Tech Mono','Courier New',monospace"
+    font-size="15" letter-spacing="3"
+    fill="#FF6B00" opacity="0.65">AUTONOMOUS SOC · INDIA</text>
+</svg>
